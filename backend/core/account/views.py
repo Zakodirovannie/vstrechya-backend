@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import UserAccount
 from core.utils import upload_image
+from djoser.email import ActivationEmail
 from djoser.conf import settings as djoser_settings
 from .serializers import *
 
@@ -79,7 +80,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
 User = get_user_model()
 
-
 class SendActivationEmailView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -98,11 +98,13 @@ class SendActivationEmailView(APIView):
             'domain': request.get_host(),
         }
 
-        email_message = djoser_settings.EMAIL.activation(request, context)
+        email_message = CustomActivationEmail(request, context)
         email_message.send(to=[user.email])
 
         return Response({"detail": "Активационное письмо отправлено."}, status=status.HTTP_200_OK)
 
+class CustomActivationEmail(ActivationEmail):
+    template_name = "activation_email.html"
 
 class ActivationView(APIView):
     def get(self, request, uid, token, *args, **kwargs):

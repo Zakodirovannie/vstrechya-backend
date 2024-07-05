@@ -17,7 +17,7 @@ from core.utils import upload_image
 class ConstructedCollectionViewSet(viewsets.ViewSet):
 
     def get_permissions(self):
-        if self.action in ["create_collection_get", "create_collection_post", "upload_json_data"]:
+        if self.action in ["create_collection_get", "create_collection_post", "upload_json_data", "upload_image"]:
             self.permission_classes = [IsAuthenticated]
         else:
             self.permission_classes = [AllowAny]
@@ -39,6 +39,13 @@ class ConstructedCollectionViewSet(viewsets.ViewSet):
     def create_collection_get(self, request, *args, **kwargs):
         return Response({"name": ""})
 
+    def upload_image(self, request, *args, **kwargs):
+        img = request.FILES.get("img")
+        if img:
+            url = upload_image.apply_async(
+                (base64.b64encode(img.read()), "collection_images/avatars", True)).get()
+            return Response({"image_url": url}, status=status.HTTP_200_OK)
+        return Response({"error": "Картинка не отправлена"}, status=status.HTTP_400_BAD_REQUEST)
     @action(detail=False)
     def create_collection_post(self, request, *args, **kwargs):
         data = request.data.copy()

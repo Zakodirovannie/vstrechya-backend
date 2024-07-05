@@ -19,4 +19,9 @@ urlpatterns = [
         ConstructedCollectionViewSet.as_view({"post": "upload_json_data"}),
         name="upload-json-data",
     ),
+    path(
+        "constructor/upload-image/",
+        ConstructedCollectionViewSet.as_view({"post": "upload_image"}),
+        name="upload-image",
+    ),
 ]

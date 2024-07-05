@@ -207,6 +207,9 @@ DJOSER = {
     #'USERNAME_RESET_CONFIRM_URL': 'email/reset/confirm/{uid}/{token}',
     "ACTIVATION_URL": "auth/activate/{uid}/{token}/",
     "SEND_ACTIVATION_EMAIL": False,
+    'EMAIL': {
+        'activation': 'account.views.CustomActivationEmail',
+    },
     "SERIALIZERS": {
         "user_create": "account.serializers.UserCreateSerializer",
         "user": "account.serializers.UserSerializer",
@@ -231,11 +234,10 @@ AWS_ACCESS = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_URL = "https://digital-portfolio.hb.ru-msk.vkcs.cloud/"
 AWS_ENDPOINT_URL = "https://hb.ru-msk.vkcs.cloud/"
 
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        'DIRS': [BASE_DIR / 'account' / 'templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
