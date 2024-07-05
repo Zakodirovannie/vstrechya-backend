@@ -1,5 +1,5 @@
-{% block content %}
+{% block html_body %}
 <p>Здравствуйте, {{ user.email }}!</p>
 <p>Пожалуйста, перейдите по следующей ссылке для активации вашего аккаунта:</p>
-<p><a href="{{ protocol }}://{{ domain }}{{ url }}">Активировать аккаунт</a></p>
-{% endblock %}
+<p><a href="{{ protocol }}://{{ domain }}/{{ url }}">Активировать аккаунт</a></p>
+{% endblock html_body %}
