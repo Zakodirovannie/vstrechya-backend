@@ -3,7 +3,6 @@ from pathlib import Path
 import structlog
 from dotenv import load_dotenv
 import os
-
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get(
@@ -14,7 +13,6 @@ ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", default="*").split(",")
 CELERY_BROKER_URL = "redis://redis-qoovee/1"
 CELERY_RESULTS_URL = "redis://redis-qoovee/1"
 AUTH_USER_MODEL = "account.UserAccount"
-
 INSTALLED_APPS = [
     "daphne",
     "django.contrib.admin",
@@ -40,12 +38,15 @@ INSTALLED_APPS = [
     "constructor",
     "core.celery.apps.CeleryConfig",
 ]
-
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:5173",
     "https://127.0.0.1:5173",
     "https://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://localhost:3000",
+    "https://127.0.0.1:3000",
+    "https://localhost:3000",
     "http://vstrechya.space:5173",
     "https://vstrechya.space:5173",
     "http://vstrechya.space",
@@ -53,12 +54,15 @@ CORS_ALLOWED_ORIGINS = [
     "https://engine.vstrechya.space",
     "http://engine.vstrechya.space",
 ]
-
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:5173",
     "https://127.0.0.1:5173",
     "https://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://localhost:3000",
+    "https://127.0.0.1:3000",
+    "https://localhost:3000",
     "http://vstrechya.space:5173",
     "https://vstrechya.space:5173",
     "http://vstrechya.space",
@@ -68,19 +72,21 @@ CSRF_TRUSTED_ORIGINS = [
     "http://engine.vstrechya.space",
     "https://engine.vstrechya.space",
 ]
-
 STORAGES = {
     # ...
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
-
 CORS_ORIGIN_WHITELIST = [
     "http://127.0.0.1:5173",
     "http://localhost:5173",
     "https://127.0.0.1:5173",
     "https://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://localhost:3000",
+    "https://127.0.0.1:3000",
+    "https://localhost:3000",
     "http://vstrechya.space:5173",
     "https://vstrechya.space:5173",
     "http://vstrechya.space",
@@ -88,9 +94,7 @@ CORS_ORIGIN_WHITELIST = [
     "https://engine.vstrechya.space",
     "http://engine.vstrechya.space",
 ]
-
 CORS_ALLOW_CREDENTIALS = True
-
 base_structlog_processors = [
     structlog.contextvars.merge_contextvars,
     structlog.stdlib.add_logger_name,
@@ -112,15 +116,12 @@ base_structlog_processors = [
         }
     ),
 ]
-
 base_structlog_formatter = [structlog.stdlib.ProcessorFormatter.wrap_for_formatter]
-
 structlog.configure(
     processors=base_structlog_processors + base_structlog_formatter,  # type: ignore
     logger_factory=structlog.stdlib.LoggerFactory(),
     cache_logger_on_first_use=True,
 )
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -196,9 +197,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
 ROOT_URLCONF = "core.urls"
-
 DJOSER = {
     "USER_CREATE_PASSWORD_RETYPE": True,
     "LOGOUT_ON_PASSWORD_CHANGE": True,
@@ -215,25 +214,20 @@ DJOSER = {
         "user": "account.serializers.UserSerializer",
     },
 }
-
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-
 EMAIL_HOST = "smtp.mail.ru"
 EMAIL_PORT = 2525
 EMAIL_HOST_USER = os.environ.get("EMAIL_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
-
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 EMAIL_ADMIN = EMAIL_HOST_USER
-
 AWS_SECRET = os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_ACCESS = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_URL = "https://digital-portfolio.hb.ru-msk.vkcs.cloud/"
 AWS_ENDPOINT_URL = "https://hb.ru-msk.vkcs.cloud/"
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -249,10 +243,8 @@ TEMPLATES = [
         },
     },
 ]
-
 WSGI_APPLICATION = "core.wsgi.application"
 ASGI_APPLICATION = "messenger.asgi.application"
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -263,14 +255,12 @@ DATABASES = {
         "PORT": os.environ.get("POSTGRES_PORT"),
     }
 }
-
 CACHES = {
     "default": {
         "BACKEND": "django_prometheus.cache.backends.redis.RedisCache",
         "LOCATION": "redis://redis-qoovee/0",
     }
 }
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -285,7 +275,6 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         # 'rest_framework.permissions.IsAdminUser',
@@ -297,7 +286,6 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
-
 SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
     "ACCESS_TOKEN_LIFETIME": datetime.timedelta(days=3),
@@ -305,7 +293,6 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": True,
     # "USER_AUTHENTICATION_RULE": "accounts.auth.default_user_authentication_rule",
 }
-
 SPECTACULAR_SETTINGS = {
     "TITLE": "Vstrechya API",
     "DESCRIPTION": "vstrechya.space API Endpoints",
@@ -313,7 +300,6 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
     # OTHER SETTINGS
 }
-
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.pubsub.RedisPubSubChannelLayer",
@@ -326,16 +312,12 @@ CHANNEL_LAYERS = {
         },
     }
 }
-
 LANGUAGE_CODE = "ru"
 TIME_ZONE = "Europe/Moscow"
 USE_I18N = True
 USE_TZ = True
-
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
