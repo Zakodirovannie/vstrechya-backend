@@ -12,13 +12,13 @@ from .serializers import (
     UserConstructedCollectionCreateSerializer,
 )
 from core.utils import upload_image
-
+from .permissions import IsActiveUser
 
 class ConstructedCollectionViewSet(viewsets.ViewSet):
 
     def get_permissions(self):
-        if self.action in ["create_collection_get", "create_collection_post", "upload_json_data", "upload_image"]:
-            self.permission_classes = [IsAuthenticated]
+        if self.action in ["create_collection_get", "create_collection_post", "update_collection_content", "upload_image", "delete_collection"]:
+            self.permission_classes = [IsAuthenticated, IsActiveUser]
         else:
             self.permission_classes = [AllowAny]
         return [permission() for permission in self.permission_classes]
@@ -78,18 +78,29 @@ class ConstructedCollectionViewSet(viewsets.ViewSet):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True)
-    def upload_json_data(self, request, pk=None):
+    @action(detail=True, methods=['patch'])
+    def update_collection_content(self, request, pk=None):
         collection = get_object_or_404(ConstructedCollection, pk=pk)
-        json_data = request.data.get('json_data')
 
-        if json_data is None:
-            return Response({"detail": "Нет JSON файла"}, status=status.HTTP_400_BAD_REQUEST)
+        json_data = request.data.get('json_data')
+        html_content = request.data.get('html_content')
 
         try:
-            collection.json_data = json_data
+            if json_data is not None:
+                collection.json_data = json_data
+            if html_content is not None:
+                collection.html_content = html_content
             collection.save()
-            return Response({"detail": "Загрузка прошла успешно"}, status=status.HTTP_200_OK)
+            return Response({"detail": "Обновление прошло успешно"}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    @action(detail=True, methods=['delete'])
+    def delete_collection(self, request, pk=None):
+        collection = get_object_or_404(ConstructedCollection, pk=pk)
+        user_collection = get_object_or_404(UserConstructedCollection, constructed_collection=collection)
 
+        if user_collection.user != request.user:
+            return Response({"detail": "Вы не являетесь владельцем этой коллекции"}, status=status.HTTP_403_FORBIDDEN)
+
+        collection.delete()
+        return Response({"detail": "Коллекция успешно удалена"}, status=status.HTTP_204_NO_CONTENT)
