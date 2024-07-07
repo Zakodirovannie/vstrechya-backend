@@ -53,6 +53,8 @@ CORS_ALLOWED_ORIGINS = [
     "https://vstrechya.space",
     "https://engine.vstrechya.space",
     "http://engine.vstrechya.space",
+    "http://kit.vstrechya.space",
+    "https://kit.vstrechya.space",
 ]
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:5173",
@@ -71,6 +73,8 @@ CSRF_TRUSTED_ORIGINS = [
     "https://vstrechya.space:8010",
     "http://engine.vstrechya.space",
     "https://engine.vstrechya.space",
+    "http://kit.vstrechya.space",
+    "https://kit.vstrechya.space",
 ]
 STORAGES = {
     # ...
@@ -93,6 +97,8 @@ CORS_ORIGIN_WHITELIST = [
     "https://vstrechya.space",
     "https://engine.vstrechya.space",
     "http://engine.vstrechya.space",
+    "http://kit.vstrechya.space",
+    "https://kit.vstrechya.space",
 ]
 CORS_ALLOW_CREDENTIALS = True
 base_structlog_processors = [
