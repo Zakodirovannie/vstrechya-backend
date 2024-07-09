@@ -6,10 +6,10 @@ User = get_user_model()
 
 class ConstructedCollection(models.Model):
     STATUS_CHOICES = {
-        0: 'Создано',
-        1: 'На модерации',
-        2: 'Готово к публикации',
-        3: 'Опубликовано'
+        0: "Создано",
+        1: "На модерации",
+        2: "Готово к публикации",
+        3: "Опубликовано",
     }
 
     name = models.CharField(max_length=255)

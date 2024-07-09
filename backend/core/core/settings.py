@@ -3,6 +3,7 @@ from pathlib import Path
 import structlog
 from dotenv import load_dotenv
 import os
+
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get(
@@ -130,32 +131,33 @@ structlog.configure(
     cache_logger_on_first_use=True,
 )
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'DEBUG',
+    "root": {
+        "handlers": ["console"],
+        "level": "DEBUG",
     },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": True,
         },
-        'social_django': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
+        "social_django": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": True,
         },
-        'account': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
+        "account": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": True,
         },
     },
 }
@@ -182,8 +184,8 @@ DJOSER = {
     #'USERNAME_RESET_CONFIRM_URL': 'email/reset/confirm/{uid}/{token}',
     "ACTIVATION_URL": "auth/activate/{uid}/{token}/",
     "SEND_ACTIVATION_EMAIL": False,
-    'EMAIL': {
-        'activation': 'account.views.CustomActivationEmail',
+    "EMAIL": {
+        "activation": "account.views.CustomActivationEmail",
     },
     "SERIALIZERS": {
         "user_create": "account.serializers.UserCreateSerializer",
@@ -207,7 +209,7 @@ AWS_ENDPOINT_URL = "https://hb.ru-msk.vkcs.cloud/"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        'DIRS': [BASE_DIR / 'account' / 'templates'],
+        "DIRS": [BASE_DIR / "account" / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -220,13 +222,15 @@ TEMPLATES = [
     },
 ]
 AUTHENTICATION_BACKENDS = (
-    'social_core.backends.vk.VKOAuth2',
-    'django.contrib.auth.backends.ModelBackend',
+    "social_core.backends.vk.VKOAuth2",
+    "django.contrib.auth.backends.ModelBackend",
 )
 
 SOCIAL_AUTH_VK_OAUTH2_KEY = os.environ.get("VK_OAUTH2_KEY")
 SOCIAL_AUTH_VK_OAUTH2_SECRET = os.environ.get("VK_OAUTH2_SECRET")
-SOCIAL_AUTH_VK_OAUTH2_SCOPE = ['email']
+
+SOCIAL_AUTH_VK_OAUTH2_SCOPE = ["email"]
+
 SOCIAL_AUTH_VK_APP_USER_MODE = 2
 WSGI_APPLICATION = "core.wsgi.application"
 ASGI_APPLICATION = "messenger.asgi.application"
@@ -275,32 +279,36 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
     "ACCESS_TOKEN_LIFETIME": datetime.timedelta(days=3),
     "REFRESH_TOKEN_LIFETIME": datetime.timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
+
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+
     "UPDATE_LAST_LOGIN": True,
     # "USER_AUTHENTICATION_RULE": "accounts.auth.default_user_authentication_rule",
 }
 
 SOCIAL_AUTH_PIPELINE = (
-    'social_core.pipeline.social_auth.social_details',
-    'social_core.pipeline.social_auth.social_uid',
-    'social_core.pipeline.social_auth.auth_allowed',
-    'account.pipeline.social_user',
-    'social_core.pipeline.user.create_user',
-    'social_core.pipeline.social_auth.associate_user',
-    'social_core.pipeline.social_auth.load_extra_data',
-    'social_core.pipeline.user.user_details',
+
+    "social_core.pipeline.social_auth.social_details",
+    "social_core.pipeline.social_auth.social_uid",
+    "social_core.pipeline.social_auth.auth_allowed",
+    "account.pipeline.social_user",
+    "social_core.pipeline.user.create_user",
+    "social_core.pipeline.social_auth.associate_user",
+    "social_core.pipeline.social_auth.load_extra_data",
+    "social_core.pipeline.user.user_details",
     #'account.pipeline.make_jwt',
 )
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
-#LOGIN_URL = 'login'
-#LOGOUT_URL = 'logout'
+# LOGIN_URL = 'login'
+# LOGOUT_URL = 'logout'
 SESSION_COOKIE_SECURE = False
-SOCIAL_AUTH_USER_MODEL = 'account.UserAccount'
+SOCIAL_AUTH_USER_MODEL = "account.UserAccount"
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = "/completed/"
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
-SOCIAL_AUTH_URL_NAMESPACE = 'social'
-SOCIAL_AUTH_VK_OAUTH2_AUTH_EXTRA_ARGUMENTS = {'v': '5.131'}
+SOCIAL_AUTH_URL_NAMESPACE = "social"
+SOCIAL_AUTH_VK_OAUTH2_AUTH_EXTRA_ARGUMENTS = {"v": "5.131"}
+
 SPECTACULAR_SETTINGS = {
     "TITLE": "Vstrechya API",
     "DESCRIPTION": "vstrechya.space API Endpoints",

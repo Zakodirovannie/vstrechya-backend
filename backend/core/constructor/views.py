@@ -14,10 +14,17 @@ from .serializers import (
 from core.utils import upload_image
 from .permissions import IsActiveUser
 
+
 class ConstructedCollectionViewSet(viewsets.ViewSet):
 
     def get_permissions(self):
-        if self.action in ["create_collection_get", "create_collection_post", "update_collection_content", "upload_image", "delete_collection"]:
+        if self.action in [
+            "create_collection_get",
+            "create_collection_post",
+            "update_collection_content",
+            "upload_image",
+            "delete_collection",
+        ]:
             self.permission_classes = [IsAuthenticated, IsActiveUser]
         else:
             self.permission_classes = [AllowAny]
@@ -43,9 +50,13 @@ class ConstructedCollectionViewSet(viewsets.ViewSet):
         img = request.FILES.get("img")
         if img:
             url = upload_image.apply_async(
-                (base64.b64encode(img.read()), "collection_images/avatars", True)).get()
+                (base64.b64encode(img.read()), "collection_images/avatars", True)
+            ).get()
             return Response({"image_url": url}, status=status.HTTP_200_OK)
-        return Response({"error": "Картинка не отправлена"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Картинка не отправлена"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
     @action(detail=False)
     def create_collection_post(self, request, *args, **kwargs):
         data = request.data.copy()
@@ -78,12 +89,12 @@ class ConstructedCollectionViewSet(viewsets.ViewSet):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=['patch'])
+    @action(detail=True, methods=["patch"])
     def update_collection_content(self, request, pk=None):
         collection = get_object_or_404(ConstructedCollection, pk=pk)
 
-        json_data = request.data.get('json_data')
-        html_content = request.data.get('html_content')
+        json_data = request.data.get("json_data")
+        html_content = request.data.get("html_content")
 
         try:
             if json_data is not None:
@@ -91,16 +102,26 @@ class ConstructedCollectionViewSet(viewsets.ViewSet):
             if html_content is not None:
                 collection.html_content = html_content
             collection.save()
-            return Response({"detail": "Обновление прошло успешно"}, status=status.HTTP_200_OK)
+            return Response(
+                {"detail": "Обновление прошло успешно"}, status=status.HTTP_200_OK
+            )
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-    @action(detail=True, methods=['delete'])
+
+    @action(detail=True, methods=["delete"])
     def delete_collection(self, request, pk=None):
         collection = get_object_or_404(ConstructedCollection, pk=pk)
-        user_collection = get_object_or_404(UserConstructedCollection, constructed_collection=collection)
+        user_collection = get_object_or_404(
+            UserConstructedCollection, constructed_collection=collection
+        )
 
         if user_collection.user != request.user:
-            return Response({"detail": "Вы не являетесь владельцем этой коллекции"}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"detail": "Вы не являетесь владельцем этой коллекции"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         collection.delete()
-        return Response({"detail": "Коллекция успешно удалена"}, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"detail": "Коллекция успешно удалена"}, status=status.HTTP_204_NO_CONTENT
+        )
