@@ -4,10 +4,12 @@ from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_str, force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from requests import HTTPError
+from rest_framework import viewsets, status, permissions
+from rest_framework.decorators import action, permission_classes, api_view, renderer_classes
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
+
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -80,6 +82,7 @@ class UserViewSet(viewsets.ModelViewSet):
     # !ONLY FOR CHAT APP!
     @action(permission_classes=(IsAuthenticated,), detail=False)
     def all(self, request):
+
         serializer = UserCreateSerializer(self.queryset, many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
@@ -143,20 +146,23 @@ class ActivationView(APIView):
 
 def set_jwt_cookies(response, tokens, *args, **kwargs):
     response.set_cookie(
+
         key="access_token",
         value=tokens["access"],
         expires=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
+
         httponly=False,
         secure=False,
     )
     response.set_cookie(
+
         key="refresh_token",
         value=tokens["refresh"],
         expires=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
+
         httponly=False,
         secure=False,
     )
-
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
@@ -165,6 +171,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             tokens = {
                 "access": response.data.get("access"),
                 "refresh": response.data.get("refresh"),
+
             }
             set_jwt_cookies(response, tokens)
         return response
@@ -177,6 +184,7 @@ class CustomTokenRefreshView(TokenRefreshView):
             tokens = {
                 "access": response.data.get("access"),
                 "refresh": response.data.get("refresh"),
+
             }
             set_jwt_cookies(response, tokens)
         return response

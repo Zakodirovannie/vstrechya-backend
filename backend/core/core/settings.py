@@ -131,6 +131,7 @@ structlog.configure(
     cache_logger_on_first_use=True,
 )
 LOGGING = {
+
     "version": 1,
     "disable_existing_loggers": False,
     "handlers": {
@@ -227,7 +228,9 @@ AUTHENTICATION_BACKENDS = (
 
 SOCIAL_AUTH_VK_OAUTH2_KEY = os.environ.get("VK_OAUTH2_KEY")
 SOCIAL_AUTH_VK_OAUTH2_SECRET = os.environ.get("VK_OAUTH2_SECRET")
+
 SOCIAL_AUTH_VK_OAUTH2_SCOPE = ["email"]
+
 SOCIAL_AUTH_VK_APP_USER_MODE = 2
 WSGI_APPLICATION = "core.wsgi.application"
 ASGI_APPLICATION = "messenger.asgi.application"
@@ -276,13 +279,16 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
     "ACCESS_TOKEN_LIFETIME": datetime.timedelta(days=3),
     "REFRESH_TOKEN_LIFETIME": datetime.timedelta(days=7),
+
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
+
     "UPDATE_LAST_LOGIN": True,
     # "USER_AUTHENTICATION_RULE": "accounts.auth.default_user_authentication_rule",
 }
 
 SOCIAL_AUTH_PIPELINE = (
+
     "social_core.pipeline.social_auth.social_details",
     "social_core.pipeline.social_auth.social_uid",
     "social_core.pipeline.social_auth.auth_allowed",
@@ -302,6 +308,7 @@ SOCIAL_AUTH_LOGIN_REDIRECT_URL = "/completed/"
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
 SOCIAL_AUTH_URL_NAMESPACE = "social"
 SOCIAL_AUTH_VK_OAUTH2_AUTH_EXTRA_ARGUMENTS = {"v": "5.131"}
+
 SPECTACULAR_SETTINGS = {
     "TITLE": "Vstrechya API",
     "DESCRIPTION": "vstrechya.space API Endpoints",
