@@ -5,6 +5,13 @@ User = get_user_model()
 
 
 class ConstructedCollection(models.Model):
+    STATUS_CHOICES = {
+        0: 'Создано',
+        1: 'На модерации',
+        2: 'Готово к публикации',
+        3: 'Опубликовано'
+    }
+
     name = models.CharField(max_length=255)
     collection_image = models.CharField(
         max_length=255,
@@ -12,7 +19,7 @@ class ConstructedCollection(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    status = models.IntegerField()
+    status = models.IntegerField(choices=STATUS_CHOICES, default=0)
     html_content = models.TextField(blank=True, default="")
     json_data = models.JSONField(blank=True, default=dict)
 
