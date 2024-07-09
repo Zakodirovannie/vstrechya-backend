@@ -3,6 +3,7 @@ from pathlib import Path
 import structlog
 from dotenv import load_dotenv
 import os
+
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get(
@@ -25,6 +26,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "djoser",
+    "social_django",
     "drf_spectacular",
     "django_structlog",
     "channels",
@@ -131,67 +133,34 @@ structlog.configure(
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "formatters": {
-        "colored_console": {
-            "()": structlog.stdlib.ProcessorFormatter,
-            "processor": structlog.dev.ConsoleRenderer(colors=True),
-        },
-        "json_formatter": {
-            "()": structlog.stdlib.ProcessorFormatter,
-            "processor": structlog.processors.JSONRenderer(),
-        },
-    },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "formatter": "colored_console",
-        },
-        "json": {
-            "class": "logging.StreamHandler",
-            "formatter": "json_formatter",
-        },
-        "null": {
-            "class": "logging.NullHandler",
         },
     },
     "root": {
         "handlers": ["console"],
-        "level": "WARNING",
+        "level": "DEBUG",
     },
     "loggers": {
-        "django_structlog": {
+        "django": {
+            "handlers": ["console"],
             "level": "DEBUG",
+            "propagate": True,
         },
-        # Django Structlog request middlewares
-        "django_structlog.middlewares": {
-            "level": "INFO",
+        "social_django": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": True,
         },
-        # DB logs
-        "django.db.backends": {
-            "level": "CRITICAL",
-        },
-        # Use structlog middleware
-        "django.server": {
-            "handlers": ["null"],
-            "propagate": False,
-        },
-        # Use structlog middleware
-        "django.request": {
-            "handlers": ["null"],
-            "propagate": False,
-        },
-        # Use structlog middleware
-        "django.channels.server": {
-            "handlers": ["null"],
-            "propagate": False,
-        },
-        # Use structlog middleware
-        "werkzeug": {
-            "handlers": ["null"],
-            "propagate": False,
+        "account": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": True,
         },
     },
 }
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -199,10 +168,12 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    "social_django.middleware.SocialAuthExceptionMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
 ROOT_URLCONF = "core.urls"
 DJOSER = {
     "USER_CREATE_PASSWORD_RETYPE": True,
@@ -212,8 +183,8 @@ DJOSER = {
     #'USERNAME_RESET_CONFIRM_URL': 'email/reset/confirm/{uid}/{token}',
     "ACTIVATION_URL": "auth/activate/{uid}/{token}/",
     "SEND_ACTIVATION_EMAIL": False,
-    'EMAIL': {
-        'activation': 'account.views.CustomActivationEmail',
+    "EMAIL": {
+        "activation": "account.views.CustomActivationEmail",
     },
     "SERIALIZERS": {
         "user_create": "account.serializers.UserCreateSerializer",
@@ -237,7 +208,7 @@ AWS_ENDPOINT_URL = "https://hb.ru-msk.vkcs.cloud/"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        'DIRS': [BASE_DIR / 'account' / 'templates'],
+        "DIRS": [BASE_DIR / "account" / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -249,6 +220,15 @@ TEMPLATES = [
         },
     },
 ]
+AUTHENTICATION_BACKENDS = (
+    "social_core.backends.vk.VKOAuth2",
+    "django.contrib.auth.backends.ModelBackend",
+)
+
+SOCIAL_AUTH_VK_OAUTH2_KEY = os.environ.get("VK_OAUTH2_KEY")
+SOCIAL_AUTH_VK_OAUTH2_SECRET = os.environ.get("VK_OAUTH2_SECRET")
+SOCIAL_AUTH_VK_OAUTH2_SCOPE = ["email"]
+SOCIAL_AUTH_VK_APP_USER_MODE = 2
 WSGI_APPLICATION = "core.wsgi.application"
 ASGI_APPLICATION = "messenger.asgi.application"
 DATABASES = {
@@ -296,9 +276,32 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
     "ACCESS_TOKEN_LIFETIME": datetime.timedelta(days=3),
     "REFRESH_TOKEN_LIFETIME": datetime.timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": True,
     # "USER_AUTHENTICATION_RULE": "accounts.auth.default_user_authentication_rule",
 }
+
+SOCIAL_AUTH_PIPELINE = (
+    "social_core.pipeline.social_auth.social_details",
+    "social_core.pipeline.social_auth.social_uid",
+    "social_core.pipeline.social_auth.auth_allowed",
+    "account.pipeline.social_user",
+    "social_core.pipeline.user.create_user",
+    "social_core.pipeline.social_auth.associate_user",
+    "social_core.pipeline.social_auth.load_extra_data",
+    "social_core.pipeline.user.user_details",
+    #'account.pipeline.make_jwt',
+)
+SOCIAL_AUTH_JSONFIELD_ENABLED = True
+# LOGIN_URL = 'login'
+# LOGOUT_URL = 'logout'
+SESSION_COOKIE_SECURE = False
+SOCIAL_AUTH_USER_MODEL = "account.UserAccount"
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = "/completed/"
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
+SOCIAL_AUTH_URL_NAMESPACE = "social"
+SOCIAL_AUTH_VK_OAUTH2_AUTH_EXTRA_ARGUMENTS = {"v": "5.131"}
 SPECTACULAR_SETTINGS = {
     "TITLE": "Vstrechya API",
     "DESCRIPTION": "vstrechya.space API Endpoints",

@@ -1,4 +1,6 @@
 import base64
+
+from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_str, force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
@@ -6,18 +8,12 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
-<<<<<<< Updated upstream
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from .models import UserAccount
-=======
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
->>>>>>> Stashed changes
 from core.utils import upload_image
 from djoser.email import ActivationEmail
 from djoser.conf import settings as djoser_settings
@@ -26,6 +22,7 @@ from .serializers import *
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserDetailSerializer
+    queryset = User.objects.all()
 
     def get_permissions(self):
         if self.action in ["user_edit_get", "user_edit_post", "upload_avatar"]:
@@ -81,19 +78,14 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response({"img": "no image"}, status=status.HTTP_400_BAD_REQUEST)
 
     # !ONLY FOR CHAT APP!
-    @action(permission_classes=(IsAuthenticated,), detail=True)
+    @action(permission_classes=(IsAuthenticated,), detail=False)
     def all(self, request):
-<<<<<<< Updated upstream
-        serializer = UserCreateSerializer(User.objects.all(), many=True)
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
-
-
-=======
         serializer = UserCreateSerializer(self.queryset, many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
->>>>>>> Stashed changes
+
 User = get_user_model()
+
 
 class SendActivationEmailView(APIView):
     permission_classes = [IsAuthenticated]
@@ -101,25 +93,32 @@ class SendActivationEmailView(APIView):
     def post(self, request, *args, **kwargs):
         user = request.user
         if user.is_active:
-            return Response({"detail": "Пользователь уже активен."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Пользователь уже активен."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         activation_link = djoser_settings.ACTIVATION_URL.format(uid=uid, token=token)
         context = {
-            'user': user,
-            'url': activation_link,
-            'protocol': 'https' if request.is_secure() else 'http',
-            'domain': request.get_host(),
+            "user": user,
+            "url": activation_link,
+            "protocol": "https" if request.is_secure() else "http",
+            "domain": request.get_host(),
         }
 
         email_message = CustomActivationEmail(request, context)
         email_message.send(to=[user.email])
 
-        return Response({"detail": "Активационное письмо отправлено."}, status=status.HTTP_200_OK)
+        return Response(
+            {"detail": "Активационное письмо отправлено."}, status=status.HTTP_200_OK
+        )
+
 
 class CustomActivationEmail(ActivationEmail):
     template_name = "activation_email.html"
+
 
 class ActivationView(APIView):
     def get(self, request, uid, token, *args, **kwargs):
@@ -140,3 +139,44 @@ class ActivationView(APIView):
                 {"status": "Ошибка активации аккаунта"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+def set_jwt_cookies(response, tokens, *args, **kwargs):
+    response.set_cookie(
+        key="access_token",
+        value=tokens["access"],
+        expires=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
+        httponly=False,
+        secure=False,
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value=tokens["refresh"],
+        expires=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
+        httponly=False,
+        secure=False,
+    )
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == status.HTTP_200_OK:
+            tokens = {
+                "access": response.data.get("access"),
+                "refresh": response.data.get("refresh"),
+            }
+            set_jwt_cookies(response, tokens)
+        return response
+
+
+class CustomTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == status.HTTP_200_OK:
+            tokens = {
+                "access": response.data.get("access"),
+                "refresh": response.data.get("refresh"),
+            }
+            set_jwt_cookies(response, tokens)
+        return response

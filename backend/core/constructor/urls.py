@@ -4,7 +4,13 @@ from .views import ConstructedCollectionViewSet
 urlpatterns = [
     path(
         "constructor/collections/<int:pk>/",
-        ConstructedCollectionViewSet.as_view({"get": "get_collection_by_id", "delete": "delete_collection", "patch": "update_collection_content"}),
+        ConstructedCollectionViewSet.as_view(
+            {
+                "get": "get_collection_by_id",
+                "delete": "delete_collection",
+                "patch": "update_collection_content",
+            }
+        ),
         name="constructed-collections",
     ),
     path(

@@ -1,6 +1,9 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
+
+from account.pipeline import completed
+
 from . import settings
 from drf_spectacular.views import (
     SpectacularAPIView,
@@ -10,6 +13,8 @@ from drf_spectacular.views import (
 
 urlpatterns = [
     path("", include("account.urls"), name="users"),
+    path("", include("social_django.urls", namespace="social")),
+    path("completed/", completed, name="completed"),
     path("", include("museum.urls"), name="users"),
     path("", include("collection.urls"), name="collections"),
     path("", include("messenger.urls"), name="messenger"),
