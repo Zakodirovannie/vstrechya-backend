@@ -6,9 +6,18 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
+<<<<<<< Updated upstream
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import UserAccount
+=======
+
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+>>>>>>> Stashed changes
 from core.utils import upload_image
 from djoser.email import ActivationEmail
 from djoser.conf import settings as djoser_settings
@@ -74,10 +83,16 @@ class UserViewSet(viewsets.ModelViewSet):
     # !ONLY FOR CHAT APP!
     @action(permission_classes=(IsAuthenticated,), detail=True)
     def all(self, request):
+<<<<<<< Updated upstream
         serializer = UserCreateSerializer(User.objects.all(), many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
 
+=======
+        serializer = UserCreateSerializer(self.queryset, many=True)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+>>>>>>> Stashed changes
 User = get_user_model()
 
 class SendActivationEmailView(APIView):
