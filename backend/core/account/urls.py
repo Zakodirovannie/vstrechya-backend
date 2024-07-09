@@ -4,8 +4,8 @@ from django.contrib.auth.views import (
     PasswordResetConfirmView,
     PasswordResetCompleteView,
 )
-from .views import ActivationView, SendActivationEmailView
-from django.urls import path, reverse_lazy
+from .views import ActivationView, SendActivationEmailView, CustomTokenObtainPairView, CustomTokenRefreshView
+from django.urls import path, reverse_lazy, include
 from djoser.views import UserViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from . import views
@@ -14,8 +14,10 @@ app_name = "account"
 
 urlpatterns = [
     path("auth/signup/", UserViewSet.as_view({"post": "create"}), name="register"),
-    path("auth/signin/", TokenObtainPairView.as_view(), name="create-token"),
-    path("auth/api/token/refresh/", TokenRefreshView.as_view(), name="refresh-token"),
+    #path("auth/signin/", TokenObtainPairView.as_view(), name="create-token"),
+    #path("auth/api/token/refresh/", TokenRefreshView.as_view(), name="refresh-token"),
+    path("auth/signin/", CustomTokenObtainPairView.as_view(), name="create-token"),
+    path("auth/api/token/refresh/", CustomTokenRefreshView.as_view(), name="refresh-token"),
     path("users/me/", views.UserViewSet.as_view({"get": "user_me"}), name="user-me"),
     path(
         "users/all/", views.UserViewSet.as_view({"get": "all"}), name="all"
@@ -66,4 +68,5 @@ urlpatterns = [
         SendActivationEmailView.as_view(),
         name="send_activation_email",
     ),
+
 ]
