@@ -1,4 +1,5 @@
 import base64
+import json
 
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -98,6 +99,10 @@ class ConstructedCollectionViewSet(viewsets.ViewSet):
 
         try:
             if json_data is not None:
+                try:
+                    json_data = json.loads(json_data)
+                except:
+                    return Response({"detail": "Неверные данные JSON формата"}, status=status.HTTP_400_BAD_REQUEST)
                 collection.json_data = json_data
             if html_content is not None:
                 collection.html_content = html_content

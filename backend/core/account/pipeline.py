@@ -17,7 +17,7 @@ from social_core.exceptions import MissingBackend
 from social_core.pipeline.partial import partial
 from social_django.utils import load_backend, load_strategy
 from social_django.views import complete as social_complete
-from .views import convert_token, set_jwt_cookies
+from .views import set_jwt_cookies
 
 def social_user(backend, uid, user=None, *args, **kwargs):
     provider = backend.name

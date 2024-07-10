@@ -11,7 +11,6 @@ from .views import (
     CustomTokenObtainPairView,
     CustomTokenRefreshView,
 )
-=======
 
 from django.urls import path, reverse_lazy, include
 from djoser.views import UserViewSet

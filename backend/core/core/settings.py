@@ -223,7 +223,7 @@ TEMPLATES = [
 ]
 AUTHENTICATION_BACKENDS = (
     "social_core.backends.vk.VKOAuth2",
-    "django.contrib.auth.backends.ModelBackend",
+    "django.contrib.auth.backends.AllowAllUsersModelBackend",
 )
 
 SOCIAL_AUTH_VK_OAUTH2_KEY = os.environ.get("VK_OAUTH2_KEY")
@@ -277,14 +277,14 @@ REST_FRAMEWORK = {
 }
 SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
-    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(days=3),
+    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(days=1),
     "REFRESH_TOKEN_LIFETIME": datetime.timedelta(days=7),
 
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
 
     "UPDATE_LAST_LOGIN": True,
-    # "USER_AUTHENTICATION_RULE": "accounts.auth.default_user_authentication_rule",
+    "USER_AUTHENTICATION_RULE": "account.auth.default_user_authentication_rule",
 }
 
 SOCIAL_AUTH_PIPELINE = (
