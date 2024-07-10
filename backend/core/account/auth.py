@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
-from rest_framework import HTTP_HEADER_ENCODING, authentication
+from rest_framework import HTTP_HEADER_ENCODING, authentication, exceptions
+from rest_framework.authentication import CSRFCheck
 
 from rest_framework_simplejwt.exceptions import (
     AuthenticationFailed,
@@ -16,7 +17,21 @@ if not isinstance(api_settings.AUTH_HEADER_TYPES, (list, tuple)):
 
 AUTH_HEADER_TYPE_BYTES = {h.encode(HTTP_HEADER_ENCODING) for h in AUTH_HEADER_TYPES}
 
+def enforce_csrf(request):
+    """
+    Enforce CSRF validation.
+    """
 
+    def dummy_get_response(request):
+        return None
+
+    check = CSRFCheck(dummy_get_response)
+    # populates request.META['CSRF_COOKIE'], which is used in process_view()
+    check.process_request(request)
+    reason = check.process_view(request, None, (), {})
+    if reason:
+        # CSRF failed, bail with explicit error message
+        raise exceptions.PermissionDenied('CSRF Failed: %s' % reason)
 class JWTAuthentication(authentication.BaseAuthentication):
     """
     An authentication plugin that authenticates requests through a JSON web
@@ -31,18 +46,28 @@ class JWTAuthentication(authentication.BaseAuthentication):
         self.user_model = get_user_model()
 
     def authenticate(self, request):
+        auth_cookie = 'access_token'
         header = self.get_header(request)
         if header is None:
-            return None
-
-        raw_token = self.get_raw_token(header)
+            if not auth_cookie:
+                return None
+            else:
+                raw_token = request.COOKIES.get(auth_cookie) or None
+        else:
+            raw_token = self.get_raw_token(header)
         if raw_token is None:
             return None
 
-
         validated_token = self.get_validated_token(raw_token)
 
-        return self.get_user(validated_token), validated_token
+        user = self.get_user(validated_token)
+        #if not user or not user.is_active:
+            #return None
+
+        if auth_cookie:
+            enforce_csrf(request)
+
+        return user, validated_token
 
     def authenticate_header(self, request):
         return '{} realm="{}"'.format(
