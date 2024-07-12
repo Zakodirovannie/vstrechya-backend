@@ -1,12 +1,12 @@
 import base64
 
-from django.conf import settings
+
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_str, force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from requests import HTTPError
-from rest_framework import viewsets, status, permissions
-from rest_framework.decorators import action, permission_classes, api_view, renderer_classes
+
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
@@ -16,9 +16,11 @@ from rest_framework.views import APIView
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+from core.settings import DJOSER
 from core.utils import upload_image, send_activation_email_task
-from djoser.email import ActivationEmail
-from djoser.conf import settings as djoser_settings
+
+
+from .pipeline import set_jwt_cookies
 from .serializers import *
 
 
@@ -102,10 +104,11 @@ class SendActivationEmailView(APIView):
             )
 
         token = default_token_generator.make_token(user)
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        activation_link = djoser_settings.ACTIVATION_URL.format(uid=uid, token=token)
+        uid = urlsafe_base64_encode(force_bytes(user.id))
+        activation_link = DJOSER["ACTIVATION_URL"].format(uid=uid, token=token)
         context = {
-            "user": user,
+            "user_id": user.id,
+            "email": user.email,
             "url": activation_link,
             "protocol": "https" if request.is_secure() else "http",
             "domain": request.get_host(),
@@ -141,27 +144,6 @@ class ActivationView(APIView):
                 {"status": "Ошибка активации аккаунта"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
-
-def set_jwt_cookies(response, tokens, *args, **kwargs):
-    response.set_cookie(
-
-        key="access_token",
-        value=tokens["access"],
-        expires=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
-
-        httponly=False,
-        secure=False,
-    )
-    response.set_cookie(
-
-        key="refresh_token",
-        value=tokens["refresh"],
-        expires=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
-
-        httponly=False,
-        secure=False,
-    )
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):

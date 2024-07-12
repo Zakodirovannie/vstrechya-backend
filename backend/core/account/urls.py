@@ -12,9 +12,9 @@ from .views import (
     CustomTokenRefreshView,
 )
 
-from django.urls import path, reverse_lazy, include
+from django.urls import path, reverse_lazy
 from djoser.views import UserViewSet
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
 from . import views
 
 app_name = "account"
