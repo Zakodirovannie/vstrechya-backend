@@ -300,9 +300,14 @@ SOCIAL_AUTH_PIPELINE = (
     #'account.pipeline.make_jwt',
 )
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
-# LOGIN_URL = 'login'
-# LOGOUT_URL = 'logout'
-SESSION_COOKIE_SECURE = False
+LOGIN_REDIRECT_URL = "/completed/"
+#LOGOUT_URL = 'logout'
+
+CSRF_COOKIE_DOMAIN = ".vstrechya.space"
+CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True
+
+
 SOCIAL_AUTH_USER_MODEL = "account.UserAccount"
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = "/completed/"
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False

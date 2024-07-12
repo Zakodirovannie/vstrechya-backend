@@ -1,5 +1,6 @@
 
 from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
 
 from django.shortcuts import redirect
 
@@ -43,7 +44,7 @@ def generate_jwt_token(user):
     }
     return tokens
 
-
+@login_required
 def completed(request, *args, **kwargs):
     user = request.user
     tokens = generate_jwt_token(user)
