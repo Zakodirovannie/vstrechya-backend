@@ -292,27 +292,36 @@ SOCIAL_AUTH_PIPELINE = (
     "social_core.pipeline.social_auth.social_details",
     "social_core.pipeline.social_auth.social_uid",
     "social_core.pipeline.social_auth.auth_allowed",
+    "social_core.pipeline.social_auth.associate_by_email",
     "account.pipeline.social_user",
     "social_core.pipeline.user.create_user",
     "social_core.pipeline.social_auth.associate_user",
     "social_core.pipeline.social_auth.load_extra_data",
     "social_core.pipeline.user.user_details",
-    #'account.pipeline.make_jwt',
+    'account.pipeline.completed',
 )
-SOCIAL_AUTH_JSONFIELD_ENABLED = True
-LOGIN_REDIRECT_URL = "/completed/"
+
+#LOGIN_REDIRECT_URL = "/completed/"
 #LOGOUT_URL = 'logout'
+
 
 CSRF_COOKIE_DOMAIN = ".vstrechya.space"
 CSRF_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SECURE = True
 
+SESSION_COOKIE_DOMAIN = ".vstrechya.space"
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True
 
+SOCIAL_AUTH_JSONFIELD_ENABLED = True
 SOCIAL_AUTH_USER_MODEL = "account.UserAccount"
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = "/completed/"
-SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
 SOCIAL_AUTH_URL_NAMESPACE = "social"
 SOCIAL_AUTH_VK_OAUTH2_AUTH_EXTRA_ARGUMENTS = {"v": "5.131"}
+
+
+#SOCIAL_AUTH_LOGIN_REDIRECT_URL = "/completed/"
+
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Vstrechya API",

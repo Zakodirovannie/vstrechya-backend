@@ -1,7 +1,6 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import UserAccount
 from collection.models import UserCollection, Collection
 from collection.serializers import UserCollectionSerializer
 from constructor.models import UserConstructedCollection, ConstructedCollection
