@@ -27,6 +27,7 @@ class UsersCreateSerializer(UserCreateSerializer):
 
 class UserDetailSerializer(UserSerializer):
     collections = serializers.SerializerMethodField()
+    exhibitions = serializers.SerializerMethodField()
 
     class Meta(UserSerializer.Meta):
         model = User
@@ -38,13 +39,12 @@ class UserDetailSerializer(UserSerializer):
             "image_url",
             "phone",
             "collections",
+            "exhibitions"
         )
 
     def get_collections(self, user):
         user_collections = UserCollection.objects.filter(user=user)
-        user_constructed_collections = UserConstructedCollection.objects.filter(
-            user=user
-        )
+
         collections = []
 
         for coll in user_collections:
@@ -54,8 +54,16 @@ class UserDetailSerializer(UserSerializer):
                 ).data
             )
 
+        return collections
+
+    def get_exhibitions(self, user):
+        user_constructed_collections = UserConstructedCollection.objects.filter(
+            user=user
+        )
+        exhibitions = []
+
         for constructed_coll in user_constructed_collections:
-            collections.append(
+            exhibitions.append(
                 UserConstructedCollectionSerializer(
                     ConstructedCollection.objects.get(
                         id=constructed_coll.constructed_collection.id
@@ -63,7 +71,7 @@ class UserDetailSerializer(UserSerializer):
                 ).data
             )
 
-        return collections
+        return exhibitions
 
 
 class UserEditSerializer(UserSerializer):

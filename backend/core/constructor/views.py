@@ -68,6 +68,15 @@ class ConstructedCollectionViewSet(viewsets.ViewSet):
             )
             data["collection_image"] = image_url.wait(timeout=None, interval=0.5)
 
+        try:
+            if data["json_data"] is not None:
+                try:
+                    data["json_data"] = json.loads(data["json_data"])
+                except:
+                    return Response({"detail": "Неверные данные JSON формата"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = ConstructedCollectionCreateSerializer(data=data)
         if serializer.is_valid():
             collection = serializer.save()
