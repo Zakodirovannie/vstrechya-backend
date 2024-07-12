@@ -1,6 +1,8 @@
 import base64
 import io
 
+from djoser.email import ActivationEmail
+
 from core.celery.celery import app
 from django.core.cache import cache
 from django.conf import settings
@@ -11,6 +13,16 @@ import uuid
 def delete_cache(key_prefix: str):
     keys_pattern = f"views.decorators.cache.cache_*.{key_prefix}.*.{settings.LANGUAGE_CODE}.{settings.TIME_ZONE}"
     cache.delete_pattern(keys_pattern)
+
+
+@app.task
+def send_activation_email_task(context, to):
+    email_message = CustomActivationEmail(None, context)
+    email_message.send(to=to)
+
+
+class CustomActivationEmail(ActivationEmail):
+    template_name = "activation_email.html"
 
 
 @app.task

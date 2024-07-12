@@ -16,7 +16,7 @@ from rest_framework.views import APIView
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from core.utils import upload_image
+from core.utils import upload_image, send_activation_email_task
 from djoser.email import ActivationEmail
 from djoser.conf import settings as djoser_settings
 from .serializers import *
@@ -111,16 +111,15 @@ class SendActivationEmailView(APIView):
             "domain": request.get_host(),
         }
 
-        email_message = CustomActivationEmail(request, context)
-        email_message.send(to=[user.email])
+        send_activation_email_task.delay(context, [user.email])
 
         return Response(
             {"detail": "Активационное письмо отправлено."}, status=status.HTTP_200_OK
         )
 
 
-class CustomActivationEmail(ActivationEmail):
-    template_name = "activation_email.html"
+#class CustomActivationEmail(ActivationEmail):
+    #template_name = "activation_email.html"
 
 
 class ActivationView(APIView):
