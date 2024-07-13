@@ -159,7 +159,12 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": True,
         },
-    },
+        "mail": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+    }
 }
 
 MIDDLEWARE = [

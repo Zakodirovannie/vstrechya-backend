@@ -99,7 +99,7 @@ class SendActivationEmailView(APIView):
         user = request.user
         if user.is_active:
             return Response(
-                {"detail": "Пользователь уже активен."},
+                {"detail": "Пользователь уже активирован."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -108,7 +108,6 @@ class SendActivationEmailView(APIView):
         activation_link = DJOSER["ACTIVATION_URL"].format(uid=uid, token=token)
         context = {
             "user_id": user.id,
-            "email": user.email,
             "url": activation_link,
             "protocol": "https" if request.is_secure() else "http",
             "domain": request.get_host(),
@@ -154,7 +153,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                 "refresh": response.data.get("refresh"),
 
             }
-            set_jwt_cookies(response, tokens)
+            set_jwt_cookies(response, tokens, request)
         return response
 
 
@@ -167,5 +166,5 @@ class CustomTokenRefreshView(TokenRefreshView):
                 "refresh": response.data.get("refresh"),
 
             }
-            set_jwt_cookies(response, tokens)
+            set_jwt_cookies(response, tokens, request)
         return response

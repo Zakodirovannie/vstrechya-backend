@@ -1,13 +1,22 @@
 import base64
 import io
+from email import utils
 
+from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
 from djoser.email import ActivationEmail
-
+from requests import Response
+from templated_mail.mail import BaseEmailMessage
+from djoser.utils import encode_uid
 from core.celery.celery import app
 from django.core.cache import cache
 from django.conf import settings
 import boto3
 import uuid
+
+import logging
+logger = logging.getLogger('mail')
+
 
 
 def delete_cache(key_prefix: str):
@@ -21,8 +30,20 @@ def send_activation_email_task(context, to):
     email_message.send(to=to)
 
 
-class CustomActivationEmail(ActivationEmail):
+class CustomActivationEmail(BaseEmailMessage):
     template_name = "activation_email.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_id = self.context.get("user_id")
+        user = get_user_model().objects.get(pk=user_id)
+        context["user"] = user
+        context["uid"] = encode_uid(user.pk)
+        context["token"] = default_token_generator.make_token(user)
+        context["url"] = self.context.get("url")
+        return context
+
+
 
 
 @app.task

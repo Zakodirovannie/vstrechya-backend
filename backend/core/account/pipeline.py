@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import logout
 from django.http import HttpResponseRedirect
+from django.middleware.csrf import get_token
 
 from rest_framework_simplejwt.tokens import RefreshToken
 import datetime
@@ -30,7 +31,7 @@ def generate_jwt_token(user):
     return tokens
 
 
-def set_jwt_cookies(response, tokens):
+def set_jwt_cookies(response, tokens, request):
     response.set_cookie(
         key="access_token",
         value=tokens["access"],
@@ -49,11 +50,20 @@ def set_jwt_cookies(response, tokens):
         samesite='None',
         domain=".vstrechya.space",
     )
+    csrf_token = get_token(request)
+    response.set_cookie(
+        key="csrftoken",
+        value=csrf_token,
+        max_age=settings.SESSION_COOKIE_AGE,
+        secure=True,
+        samesite='None',
+        domain=".vstrechya.space",
+    )
 
 
 def completed(strategy, details, user=None, is_new=False, *args, **kwargs):
     if user and user.is_authenticated:
         response = HttpResponseRedirect("/users/me/")
         tokens = generate_jwt_token(user)
-        set_jwt_cookies(response, tokens)
+        set_jwt_cookies(response, tokens, strategy.request)
         return response
