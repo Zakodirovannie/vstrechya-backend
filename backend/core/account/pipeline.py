@@ -39,7 +39,7 @@ def set_jwt_cookies(response, tokens, request):
         httponly=False,
         secure=True,
         samesite='None',
-        domain=".vstrechya.space",
+        domain="vstrechya.space",
     )
     response.set_cookie(
         key="refresh_token",
@@ -48,7 +48,7 @@ def set_jwt_cookies(response, tokens, request):
         httponly=False,
         secure=True,
         samesite='None',
-        domain=".vstrechya.space",
+        domain="vstrechya.space",
     )
     csrf_token = get_token(request)
     response.set_cookie(
@@ -58,7 +58,7 @@ def set_jwt_cookies(response, tokens, request):
         secure=True,
         httponly=False,
         samesite='None',
-        domain=".vstrechya.space",
+        domain="vstrechya.space",
     )
 
 
