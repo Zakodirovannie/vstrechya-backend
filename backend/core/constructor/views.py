@@ -60,7 +60,6 @@ class ConstructedCollectionViewSet(viewsets.ViewSet):
             {"error": "Картинка не отправлена"}, status=status.HTTP_400_BAD_REQUEST
         )
 
-
     @action(detail=False)
     def create_collection_post(self, request, *args, **kwargs):
         data = request.data.copy()

@@ -11,7 +11,7 @@ class ConstructedCollectionSerializer(serializers.ModelSerializer):
 class ConstructedCollectionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConstructedCollection
-        fields = ("name", "collection_image", "status")
+        fields = ("name", "collection_image", "status", "html_content")
 
 
 class UserConstructedCollectionSerializer(serializers.ModelSerializer):
