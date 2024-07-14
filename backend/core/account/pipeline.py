@@ -64,7 +64,7 @@ def set_jwt_cookies(response, tokens, request):
 
 def completed(strategy, details, user=None, is_new=False, *args, **kwargs):
     if user and user.is_authenticated:
-        response = HttpResponseRedirect("/users/me/")
+        response = HttpResponseRedirect("https://vstrechya.space/profile/")
         tokens = generate_jwt_token(user)
         set_jwt_cookies(response, tokens, strategy.request)
         return response
