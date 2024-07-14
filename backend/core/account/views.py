@@ -4,6 +4,7 @@ import base64
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_str, force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -57,6 +58,7 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = UserEditSerializer(self.object)
         return Response(serializer.data)
 
+    @csrf_exempt
     @action(permission_classes=(IsAuthenticated,), detail=True)
     def user_edit_post(self, request, *args, **kwargs):
         if request.user.id and kwargs["pk"] == request.user.id:
@@ -68,6 +70,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
+    @csrf_exempt
     @action(permission_classes=(IsAuthenticated,), detail=True, methods=["post"])
     def upload_avatar(self, request, *args, **kwargs):
         img = request.data.get("img")
