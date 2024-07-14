@@ -40,8 +40,8 @@ def set_jwt_cookies(response, tokens, request):
         max_age=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds(),
         httponly=False,
         secure=DEPLOY,
-        #samesite='None',
-        #domain="vstrechya.space",
+        samesite='None',
+        domain="vstrechya.space",
     )
     response.set_cookie(
         key="refresh_token",
@@ -49,8 +49,8 @@ def set_jwt_cookies(response, tokens, request):
         max_age=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds(),
         httponly=False,
         secure=DEPLOY,
-        #samesite='None',
-        #domain="vstrechya.space",
+        samesite='None',
+        domain="vstrechya.space",
     )
     csrf_token = get_token(request)
     response.set_cookie(
@@ -59,8 +59,8 @@ def set_jwt_cookies(response, tokens, request):
         max_age=settings.SESSION_COOKIE_AGE,
         secure=DEPLOY,
         httponly=False,
-        #samesite='None',
-        #domain="vstrechya.space",
+        samesite='None',
+        domain="vstrechya.space",
     )
 
 
