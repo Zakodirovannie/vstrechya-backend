@@ -49,7 +49,7 @@ class CollectionsViewSet(viewsets.ViewSet):
     def collection_create_get(self, request, *args, **kwargs):
         return Response({"name": ""})
 
-    @csrf_exempt
+
     @action(detail=True)
     def collection_create_post(self, request, *args, **kwargs):
         serializer = CollectionCreateSerializer(data=request.data)
@@ -89,7 +89,6 @@ class CollectionsItemViewSet(viewsets.ViewSet):
     def collection_item_create_get(self, request, *args, **kwargs):
         return Response({"name": ""})
 
-    @csrf_exempt
     @action(detail=True)
     def collection_item_create_post(self, request, *args, **kwargs):
         img = request.data["img"]

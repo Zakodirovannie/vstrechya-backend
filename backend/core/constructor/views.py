@@ -48,7 +48,7 @@ class ConstructedCollectionViewSet(viewsets.ViewSet):
     def create_collection_get(self, request, *args, **kwargs):
         return Response({"name": ""})
 
-    @csrf_exempt
+
     def upload_image(self, request, *args, **kwargs):
         img = request.FILES.get("img")
         if img:
@@ -60,7 +60,7 @@ class ConstructedCollectionViewSet(viewsets.ViewSet):
             {"error": "Картинка не отправлена"}, status=status.HTTP_400_BAD_REQUEST
         )
 
-    @csrf_exempt
+
     @action(detail=False)
     def create_collection_post(self, request, *args, **kwargs):
         data = request.data.copy()
@@ -102,7 +102,6 @@ class ConstructedCollectionViewSet(viewsets.ViewSet):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @csrf_exempt
     @action(detail=True, methods=["patch"])
     def update_collection_content(self, request, pk=None):
         collection = get_object_or_404(ConstructedCollection, pk=pk)
@@ -126,7 +125,7 @@ class ConstructedCollectionViewSet(viewsets.ViewSet):
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    @csrf_exempt
+
     @action(detail=True, methods=["delete"])
     def delete_collection(self, request, pk=None):
         collection = get_object_or_404(ConstructedCollection, pk=pk)

@@ -58,7 +58,6 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = UserEditSerializer(self.object)
         return Response(serializer.data)
 
-    @csrf_exempt
     @action(permission_classes=(IsAuthenticated,), detail=True)
     def user_edit_post(self, request, *args, **kwargs):
         if request.user.id and kwargs["pk"] == request.user.id:
@@ -70,7 +69,6 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
-    @csrf_exempt
     @action(permission_classes=(IsAuthenticated,), detail=True, methods=["post"])
     def upload_avatar(self, request, *args, **kwargs):
         img = request.data.get("img")
