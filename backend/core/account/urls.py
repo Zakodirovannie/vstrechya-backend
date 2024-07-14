@@ -21,7 +21,7 @@ app_name = "account"
 
 urlpatterns = [
     path("auth/signup/", UserViewSet.as_view({"post": "create"}), name="register"),
-
+    #path("auth/logout/", views.UserViewSet.as_view({"get": "logout"}), name="logout"),
     path("auth/signin/", CustomTokenObtainPairView.as_view(), name="create-token"),
     path(
         "auth/api/token/refresh/",

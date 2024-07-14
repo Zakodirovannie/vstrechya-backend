@@ -1,7 +1,8 @@
 import base64
 
-
+from django.contrib.auth import logout
 from django.contrib.auth.tokens import default_token_generator
+from django.http import HttpResponseRedirect
 from django.utils.encoding import force_str, force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.views.decorators.csrf import csrf_exempt
@@ -11,14 +12,16 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
-
+from djoser.utils import encode_uid
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.settings import api_settings
 
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenViewBase
+from templated_mail.mail import BaseEmailMessage
 
 from core.settings import DJOSER
-from core.utils import upload_image, send_activation_email_task
+from core.utils import upload_image
 
 
 from .pipeline import set_jwt_cookies
@@ -42,6 +45,16 @@ class UserViewSet(viewsets.ModelViewSet):
         self.object = get_object_or_404(User, pk=kwargs["pk"])
         serializer = self.get_serializer(self.object)
         return Response(serializer.data)
+
+    @action(detail=False)
+    def user_logout(self, request, *args, **kwargs):
+        response = HttpResponseRedirect('/users/me/')
+        response.delete_cookie("access_token")
+        response.delete_cookie("refresh_token")
+        response.delete_cookie("csrftoken")
+        logout(request)
+        return response
+
 
     @action(detail=True)
     def user_me(self, request):
@@ -95,7 +108,7 @@ User = get_user_model()
 
 class SendActivationEmailView(APIView):
     permission_classes = [IsAuthenticated]
-
+    @csrf_exempt
     def post(self, request, *args, **kwargs):
         user = request.user
         if user.is_active:
@@ -108,14 +121,15 @@ class SendActivationEmailView(APIView):
         uid = urlsafe_base64_encode(force_bytes(user.id))
         activation_link = DJOSER["ACTIVATION_URL"].format(uid=uid, token=token)
         context = {
-            "user_id": user.id,
+            "user": user,
             "url": activation_link,
             "protocol": "https" if request.is_secure() else "http",
             "domain": request.get_host(),
         }
 
-        send_activation_email_task.delay(context, [user.email])
-
+        #send_activation_email_task.delay(context, [user.email])
+        email_message = CustomActivationEmail(request, context)
+        email_message.send(to=[user.email])
         return Response(
             {"detail": "Активационное письмо отправлено."}, status=status.HTTP_200_OK
         )
@@ -123,6 +137,20 @@ class SendActivationEmailView(APIView):
 
 #class CustomActivationEmail(ActivationEmail):
     #template_name = "activation_email.html"
+
+class CustomActivationEmail(BaseEmailMessage):
+    template_name = "activation_email.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        #user_id = self.context.get("user_id")
+        #user = get_user_model().objects.get(pk=user_id)
+        user = self.context["user"]
+        context["user"] = user
+        context["uid"] = encode_uid(user.pk)
+        context["token"] = default_token_generator.make_token(user)
+        context["url"] = self.context.get("url")
+        return context
 
 
 class ActivationView(APIView):
@@ -145,7 +173,8 @@ class ActivationView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-class CustomTokenObtainPairView(TokenObtainPairView):
+class CustomTokenObtainPairView(TokenViewBase):
+    _serializer_class = api_settings.TOKEN_OBTAIN_SERIALIZER
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
         if response.status_code == status.HTTP_200_OK:
@@ -158,7 +187,8 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         return response
 
 
-class CustomTokenRefreshView(TokenRefreshView):
+class CustomTokenRefreshView(TokenViewBase):
+    _serializer_class = api_settings.TOKEN_REFRESH_SERIALIZER
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
         if response.status_code == status.HTTP_200_OK:

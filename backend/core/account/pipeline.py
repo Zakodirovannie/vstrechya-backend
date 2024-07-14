@@ -4,7 +4,9 @@ from django.http import HttpResponseRedirect
 from django.middleware.csrf import get_token
 
 from rest_framework_simplejwt.tokens import RefreshToken
-import datetime
+
+from core.settings import DEPLOY
+
 
 def social_user(backend, uid, user=None, *args, **kwargs):
     provider = backend.name
@@ -37,28 +39,28 @@ def set_jwt_cookies(response, tokens, request):
         value=tokens["access"],
         max_age=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds(),
         httponly=False,
-        secure=True,
-        samesite='None',
-        domain="vstrechya.space",
+        secure=DEPLOY,
+        #samesite='None',
+        #domain="vstrechya.space",
     )
     response.set_cookie(
         key="refresh_token",
         value=tokens["refresh"],
         max_age=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds(),
         httponly=False,
-        secure=True,
-        samesite='None',
-        domain="vstrechya.space",
+        secure=DEPLOY,
+        #samesite='None',
+        #domain="vstrechya.space",
     )
     csrf_token = get_token(request)
     response.set_cookie(
         key="csrftoken",
         value=csrf_token,
         max_age=settings.SESSION_COOKIE_AGE,
-        secure=True,
+        secure=DEPLOY,
         httponly=False,
-        samesite='None',
-        domain="vstrechya.space",
+        #samesite='None',
+        #domain="vstrechya.space",
     )
 
 
