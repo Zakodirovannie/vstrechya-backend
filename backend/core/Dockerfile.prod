@@ -1,7 +1,7 @@
 ###########
 # BUILDER #
 ###########
-FROM python:3.11.4-slim-buster AS builder
+FROM python:3.12.4-alpine AS builder
 
 WORKDIR /usr/src/app
 
@@ -20,7 +20,7 @@ RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requir
 # FINAL #
 #########
 
-FROM python:3.11.4-slim-buster
+FROM python:3.12.4-alpine
 
 RUN mkdir -p /home/app
 
