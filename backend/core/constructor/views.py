@@ -1,5 +1,6 @@
 import base64
 import json
+from functools import wraps
 
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets, status
@@ -17,6 +18,18 @@ from core.utils import upload_image
 from .permissions import IsActiveUser
 
 
+def check_user_active(func):
+    @wraps(func)
+    def wrapped_view(self, request, *args, **kwargs):
+        if not request.user.is_active:
+            return Response(
+                {"detail": "Пользователь не активирован."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return func(self, request, *args, **kwargs)
+    return wrapped_view
+
+
 class ConstructedCollectionViewSet(viewsets.ViewSet):
 
     def get_permissions(self):
@@ -27,7 +40,7 @@ class ConstructedCollectionViewSet(viewsets.ViewSet):
             "upload_image",
             "delete_collection",
         ]:
-            self.permission_classes = [IsAuthenticated, IsActiveUser]
+            self.permission_classes = [IsAuthenticated]
         else:
             self.permission_classes = [AllowAny]
         return [permission() for permission in self.permission_classes]
@@ -45,10 +58,11 @@ class ConstructedCollectionViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
     @action(detail=False)
+    @check_user_active
     def create_collection_get(self, request, *args, **kwargs):
         return Response({"name": ""})
 
-
+    @check_user_active
     def upload_image(self, request, *args, **kwargs):
         img = request.FILES.get("img")
         if img:
@@ -61,6 +75,7 @@ class ConstructedCollectionViewSet(viewsets.ViewSet):
         )
 
     @action(detail=False)
+    @check_user_active
     def create_collection_post(self, request, *args, **kwargs):
         data = request.data.copy()
         img = request.data.get("collection_image")
@@ -93,6 +108,7 @@ class ConstructedCollectionViewSet(viewsets.ViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=["patch"])
+    @check_user_active
     def update_collection_content(self, request, pk=None):
         collection = get_object_or_404(ConstructedCollection, pk=pk)
 
@@ -117,6 +133,7 @@ class ConstructedCollectionViewSet(viewsets.ViewSet):
 
 
     @action(detail=True, methods=["delete"])
+    @check_user_active
     def delete_collection(self, request, pk=None):
         collection = get_object_or_404(ConstructedCollection, pk=pk)
         user_collection = get_object_or_404(
